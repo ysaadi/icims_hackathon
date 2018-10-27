@@ -59,8 +59,8 @@ def analysis():
             else:
                 myDict[name][app['status']] = 1
     y = []
-    for key in list(d.keys()):
-        y.append({key: d[key]})
+    for key in list(myDict.keys()):
+        y.append({key: myDict[key]})
     return json.dumps(y)
 
 
