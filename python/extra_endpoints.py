@@ -3,7 +3,6 @@ Non-documented API endpoints for ICIMS
     - create_companies
     - list myCompanies
 Uses browser cookie. Set in envvar
-
 """
 import requests
 import random
@@ -21,11 +20,11 @@ cookie = {"icims.hack.user": cookie_value}
 COMPANY_NAMES = ["mcds", "cafe", "hyundai", "trump", "russia"]
 
 base_url = "https://hackicims.com/docs-api/%s"
-base_payload = "{\"name\":\"%s\",\"numJobs\":%d,\"numPeople\":%d,\"numApps\":%d}"
 headers = {"content-type": "application/json"}
 
 # Ranges are updateable and can be changed to whatever range you feel appropriate
 def create_companies(names):
+    base_payload = "{\"name\":\"%s\",\"numJobs\":%d,\"numPeople\":%d,\"numApps\":%d}"
     endpoint = "createCompany"
     for name in names:
         company_name = name
