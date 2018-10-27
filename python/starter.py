@@ -34,13 +34,15 @@ def get_company_job_info(company_id, id=''):
 
 def seed_data(company_id, index_name):
     headers = {"Content-Type": "application/json"}
+    # index, type, id
     es_base_url = "https://search-icims-hack-56-4ojyhi66tg25f2gpnb6p3dbv4y.us-east-2.es.amazonaws.com/%s/%s/%s"
     type_id = 0
     # change the function that pulls the different types of data: people, application, jobs
-    people = get_company_people_info(company_id).json()
+    people = get_company_application_info(company_id).json()
     for person in people:
         payload = json.dumps(person)
-        r = requests.put(es_base_url % (index_name,"person",type_id), headers=headers, data=payload)
+        # need to change the "people" to be the appropriate mapping type
+        r = requests.put(es_base_url % (index_name,"application",type_id), headers=headers, data=payload)
         type_id += 1
         print(f"Person {person['id']}: seeded. Status: {r.status_code}")
 
@@ -84,10 +86,13 @@ def seed_mongo_companies():
         print(f"{entry['companyId']} has been seeded")
         counter += 1
 
-def get_company_id_list():
+def get_company_id_and_name_list(name=False):
     h = list_companies()
-    myList = [compId['companyId'] for compId in h]
-    return myList
+    if name == False:
+        myList = [compId['companyId'] for compId in h]
+        return myList
+    myList_with_names = [(compId['companyId'],compId['name']) for compId in h]
+    return myList_with_names
 
 if __name__ == "__main__":
     list_of_company_ids = get_company_id_list()

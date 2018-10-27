@@ -4,6 +4,8 @@ import json
 import os
 from flask import Flask, jsonify, make_response, abort, request, render_template
 from flask_restful import Api, Resource, reqparse
+from python.starter import *
+from extra_endpoints import *
 
 COOKIE_VALUE = os.environ['COOKIE_VALUE']
 print(COOKIE_VALUE)
@@ -42,6 +44,23 @@ def getCandidates(companyId):
     r = requests.get("http://hackicims.com/api/v1/companies/"+ companyId + "/people", headers=headers)
     print(json.dumps(r.json()))
     return json.dumps(r.json())
+
+@app.route('/company/analysis')
+def analysis():
+    myDict = {}
+
+    comp_list = get_company_id_and_name_list(True)
+    for company, name in comp_list:
+        myDict[name] = {}
+        applications = get_company_application_info(company).json()
+        for app in applications:
+            if app['status'] in myDict[name]:
+                myDict[name][app['status']] += 1
+            else:
+                myDict[name][app['status']] = 1
+    return json.dumps(myDict)
+
+
 
 
 if __name__ == '__main__':
