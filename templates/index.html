@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="iCIMS API">
+    <meta name="author" content="rayedchan">
+    <title>iCIMS Hackathon</title>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <script src="static/js/angular.min.js"></script>
+    <script src="static/js/jquery-3.3.1.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <script src="static/js/jquery-3.3.1.min.js"></script>
+    <script>
+    angular.module('myApp', []).controller('HomeCtrl', function($scope, $http){
+
+        // Make REST call to fetch all companies
+        $scope.showCompanyList = function() {
+            $http({
+                method: 'GET',
+                url: '/companies'
+            }).then(function(response) {
+                // Set scope model companies
+                $scope.companies = response.data;
+                console.log('companies', $scope.companies);
+
+                // Default option on initial load
+                $scope.company = $scope.selected
+
+            }, function(error) {
+                console.log(error);
+            });
+        }
+
+        // Makes REST call to fetch all the candidates for a specific company
+        $scope.showCandidateList = function() {
+            $http({
+                method: 'GET',
+                url: '/company/'+ $scope.company + '/candidates'
+            }).then(function(response) {
+                $scope.candidates = response.data;
+                console.log('candidates', $scope.candidates);
+            }, function(error) {
+                console.log(error);
+            });
+        }
+
+        // Change whenever company is selected from drop down
+        $scope.changeCompany = function()
+        {
+            // Refresh Player list
+            $scope.showCandidateList();
+        };
+
+        console.log("Company: ", $scope.company);
+
+        $scope.showCompanyList();
+    });
+    </script>
+
+</head>
+<body ng-controller="HomeCtrl">
+    <div class="container">
+        <h3 class="text-muted">Candidates</h3>
+
+        <div id="navbar">
+            <!-- Drop down to display all the companies -->
+            <select ng-model="company" ng-options="company.companyId as company.name for company in companies" ng-change="changeCompany()">
+                <option value="" ng-selected="selected" selected disabled>Please select one</option>
+            </select>
+        </div>
+
+        <br />
+
+         <!-- Display Candidate Table -->
+        <div class="panel-heading"></div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>First Name</th>
+                    <th>Middle Name</th>
+                    <th>Last Name</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="candidate in candidates">
+                    <td>{{ '{{candidate.id}}' }}</td>
+                    <td>{{ '{{candidate.email}}' }}</td>
+                    <td>{{ '{{candidate.firstName}}' }}</td>
+                    <td>{{ '{{candidate.middleName}}' }}</td>
+                    <td>{{ '{{candidate.lastName}}' }}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</body>
+</html>
