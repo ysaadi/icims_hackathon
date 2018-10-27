@@ -18,7 +18,8 @@ cookie_value = environ['COOKIE_VALUE']
 cookie = {"icims.hack.user": cookie_value}
 
 # Update this list with whatever company names you want. If you need a lot, consider using a small rainbow table
-COMPANY_NAMES = ["mcds", "cafe", "hyundai", "trump", "russia"]
+COMPANY_NAMES = ["mcds", "cafe", "hyundai", "meepo", "Jakiro", "Nausicaa",
+                 "sneevil"]
 
 base_url = "https://hackicims.com/docs-api/%s"
 base_payload = "{\"name\":\"%s\",\"numJobs\":%d,\"numPeople\":%d,\"numApps\":%d}"
