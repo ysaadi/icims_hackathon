@@ -58,7 +58,10 @@ def analysis():
                 myDict[name][app['status']] += 1
             else:
                 myDict[name][app['status']] = 1
-    return json.dumps(myDict)
+    y = []
+    for key in list(d.keys()):
+        y.append({key: d[key]})
+    return json.dumps(y)
 
 
 
