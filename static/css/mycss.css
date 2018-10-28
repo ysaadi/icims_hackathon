@@ -1,0 +1,28 @@
+.navbar {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+@media (min-width: 768px) {
+  .modal-xl {
+    width: 90%;
+   max-width:1200px;
+  }
+}
+
+.modal-body table img {
+  max-width: 100%;
+}
+
+.app-modal-window .modal-dialog {
+  width: 500px;
+}
+
+@media (min-width: 1400px){
+
+   .my-modal-popup .modal-lg {
+       width: 1308px;
+   }
+
+}
