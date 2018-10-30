@@ -1,8 +1,14 @@
+"""
+Running this file will seed your local MongoDB with the company, application, and people data
+Usage: python starter.py
+"""
 import requests
 import json
 import extra_endpoints
 import os
 from os import environ
+from pymongo import MongoClient
+from extra_endpoints import *
 
 COOKIE_VALUE = environ['COOKIE_VALUE']
 
@@ -44,6 +50,7 @@ def save_data(company_id, company_name):
 
 def seed_data(company_id, index_name):
     headers = {"Content-Type": "application/json"}
+    # index, type, id
     es_base_url = "https://search-icims-hack-56-4ojyhi66tg25f2gpnb6p3dbv4y.us-east-2.es.amazonaws.com/%s/%s/%s"
     type_id = 0
     # change the function that pulls the different types of data: people, application, jobs
@@ -68,23 +75,72 @@ def seed_data(company_id, index_name):
         type_id += 1
         print(f"Job {job['id']}: seeded. Status: {r.status_code}")
 
-def main():
-  #companies=extra_endpoints.list_companies()
-  companies={
-    '31': 'Yaman Saadi',
-    '73': 'mcds',
-    '74': 'cafe',
-    '75': 'hyndai',
-    '76': 'meepo',
-    '77': 'Jakiro',
-    '78': 'Nausicaa',
-    '79': 'sneevil'
-  }
-  for company in companies.keys():
-    #companyId=company['companyId']
-    #companyName=company['name'].lower().replace(" ", "")
-    #seed_data(companyId,companyName)
-    save_data(company, companies[company])
+def seed_mongo_people(company_id):
+    client = MongoClient('localhost', 27017)
+    db = client.icims
+    people = db.people
+    collection_l = get_company_people_info(company_id).json()
+    counter = 0    
+    for entry in collection_l:
+        entry['uid'] = counter
+        result = people.insert_one(entry)
+        print(f"result: {result.inserted_id} ")
+        print(f"{entry['firstName']} has been seeded")
+        counter += 1
 
-if __name__=='__main__':
-  main()
+def seed_mongo_applications(company_id):
+    client = MongoClient('localhost', 27017)
+    db = client.icims
+    applications = db.applications
+    collection_l = get_company_application_info(company_id).json()
+    counter = 0    
+    for entry in collection_l:
+        entry['aid'] = counter
+        result = applications.insert_one(entry)
+        print(f"result: {result.inserted_id} ")
+        print(f"{entry['jobId']} has been seeded")
+        counter += 1
+
+def seed_mongo_companies():
+    client = MongoClient('localhost', 27017)
+    db = client.icims
+    companies = db.companies
+    collection_l = list_companies()
+    counter = 0    
+    for entry in collection_l:
+        entry['cid'] = counter
+        result = companies.insert_one(entry)
+        print(f"result: {result.inserted_id} ")
+        print(f"{entry['companyId']} has been seeded")
+        counter += 1
+
+def get_company_id_and_name_list(name=False):
+    h = list_companies()
+    if name == False:
+        myList = [compId['companyId'] for compId in h]
+        return myList
+    myList_with_names = [(compId['companyId'],compId['name']) for compId in h]
+    return myList_with_names
+
+if __name__ == "__main__":
+    #list_of_company_ids = get_company_id_list()
+    #seed_mongo_companies()
+    #for company_id in list_of_company_ids:
+    #    seed_mongo_applications(company_id)
+    #    seed_mongo_people(company_id)
+    #companies=extra_endpoints.list_companies()
+    companies={
+      '31': 'Yaman Saadi',
+      '73': 'mcds',
+      '74': 'cafe',
+      '75': 'hyndai',
+      '76': 'meepo',
+      '77': 'Jakiro',
+      '78': 'Nausicaa',
+      '79': 'sneevil'
+    }
+    for company in companies.keys():
+      #companyId=company['companyId']
+      #companyName=company['name'].lower().replace(" ", "")
+      #seed_data(companyId,companyName)
+      save_data(company, companies[company])

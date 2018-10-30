@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="iCIMS API">
+    <meta name="author" content="rayedchan">
+    <title>iCIMS Hackathon</title>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/mycss.css">
+    <script src="static/js/angular.min.js"></script>
+    <script src="static/js/jquery-3.3.1.min.js"></script>
+    <script src="static/js/bootstrap.min.js"></script>
+    <script>
+    angular.module('myApp', []).controller('HomeCtrl', function($scope, $http){
+
+        // Make REST call to fetch all companies
+        $scope.showCompanyList = function() {
+            $http({
+                method: 'GET',
+                url: '/companies'
+            }).then(function(response) {
+                // Set scope model companies
+                $scope.companies = response.data;
+                console.log('companies', $scope.companies);
+
+                // Default option on initial load
+                $scope.company = $scope.selected
+
+            }, function(error) {
+                console.log(error);
+            });
+        }
+
+        // Makes REST call to fetch all the candidates for a specific company
+        $scope.showCandidateList = function() {
+            $http({
+                method: 'GET',
+                url: '/company/'+ $scope.company + '/candidates'
+            }).then(function(response) {
+                $scope.candidates = response.data;
+                console.log('candidates', $scope.candidates);
+            }, function(error) {
+                console.log(error);
+            });
+        }
+
+        // Change whenever company is selected from drop down
+        $scope.changeCompany = function()
+        {
+            // Refresh Player list
+            $scope.showCandidateList();
+        };
+
+        console.log("Company: ", $scope.company);
+
+        $scope.showCompanyList();
+
+        // Show companies candidate application statistics
+        $scope.showAllCompanyApplicationsStats = function()
+        {
+            $http({
+                method: 'GET',
+                url: '/company/analysis'
+            }).then(function(response) {
+                $scope.appStats = response.data;
+                console.log('appStats', $scope.appStats);
+            }, function(error) {
+                console.log(error);
+            });
+        };
+
+        // Form popup Application Stats
+        $scope.showAppStatPopUp = function()
+        {
+            $('#addPopUp').modal('show') // show popup form
+        }
+
+        $scope.showAllCompanyApplicationsStats();
+
+    });
+    </script>
+
+</head>
+<body ng-controller="HomeCtrl">
+    <div class="container">
+        <h3 class="text-muted">Candidates</h3>
+
+        <div>
+            <ul class="navbar">
+                <li>
+                    <!-- Drop down to display all the companies -->
+                    <select ng-model="company" ng-options="company.companyId as company.name for company in companies" ng-change="changeCompany()">
+                        <option value="" ng-selected="selected" selected disabled>Please select one</option>
+                    </select>
+                </li>
+                 <li>
+                     <!-- Add button will be active when a sport type is selected from select options-->
+                    <button type="button" class="btn btn-success" data-toggle="modal" ng-click="showAppStatPopUp()">Show Application Statistics</button>
+                </li>
+            </ul>
+        </div>
+
+        <br />
+
+         <!-- Display Candidate Table -->
+        <div class="panel-heading"></div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>First Name</th>
+                    <th>Middle Name</th>
+                    <th>Last Name</th>
+                    <th>Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="candidate in candidates">
+                    <td>{{ '{{candidate.id}}' }}</td>
+                    <td>{{ '{{candidate.email}}' }}</td>
+                    <td>{{ '{{candidate.firstName}}' }}</td>
+                    <td>{{ '{{candidate.middleName}}' }}</td>
+                    <td>{{ '{{candidate.lastName}}' }}</td>
+                    <td>{{ '{{candidate.address.street}}' }}, {{ '{{candidate.address.state}}' }}, {{ '{{candidate.address.country}}' }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- Add/Update Player Popup-->
+     <div class="modal fade" id="addPopUp" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+
+                <!-- Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel">Company Application Statistics</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+
+                <!-- Input Form -->
+                <div class="modal-body">
+                    <div class="panel-heading"></div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Interview</th>
+                                    <th>Applied</th>
+                                    <th>Offer Accepted</th>
+                                    <th>Offer Extended</th>
+                                    <th>Rejected</th>
+                                    <th>Offer Rejected</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="appStat in appStats">
+                                    <td>{{ '{{appStat.company}}' }}</td>
+                                    <td>{{ '{{appStat.INTERVIEW}}' }}</td>
+                                    <td>{{ '{{appStat.APPLIED}}' }}</td>
+                                    <td>{{ '{{appStat.OFFER_ACCEPTED}}' }}</td>
+                                    <td>{{ '{{appStat.OFFER_EXTENDED}}' }}</td>
+                                    <td>{{ '{{appStat.REJECTED}}' }}</td>
+                                    <td>{{ '{{appStat.OFFER_REJECTED}}' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                </div>
+
+                <div class="modal-footer"></div>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
